@@ -26,8 +26,8 @@ function PlayersTable() {
                         {players.length > 0 ? (
                             players.map((player, index) => (
                                 <tr key={index}>
-                                    <td>{player.playerName}</td>
-                                    <td>{player.playerEmail}</td>
+                                    <td>{player.player_name}</td>
+                                    <td>{player.player_email}</td>
                                 </tr>
                             ))
                         ) : (
