@@ -1,13 +1,23 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PlayersTable from './PlayersTable';
-import './PlayersTable.css';
+import BooksTable from './BooksTable';
+import Navbar from './Navbar';
+import './App.css';
 
 function App() {
     return (
-        <div>
-            <h1>Super Reading Friends Players</h1>
-            <PlayersTable />
-        </div>
+        <Router>
+            <div className="app-container">
+                <Navbar />
+                <Routes>
+                    {/* Default Route → Players Page */}
+                    <Route path="/" element={<Navigate to="/players" />} />
+                    <Route path="/players" element={<PlayersTable />} />
+                    <Route path="/books" element={<BooksTable />} />
+                </Routes>
+            </div>
+        </Router>
     );
 }
 
