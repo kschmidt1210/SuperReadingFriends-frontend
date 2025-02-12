@@ -1,5 +1,5 @@
 import React from 'react';
-import FriendsTable from './PlayersTable';
+import PlayersTable from './PlayersTable';
 import './PlayersTable.css';
 
 function App() {
