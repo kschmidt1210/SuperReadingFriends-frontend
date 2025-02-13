@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import LogBookModal from "./SubmitBookModal"; // Import modal
+import SubmitBookModal from "./SubmitBookModal"; // Import modal
 import "./Navbar.css";
 
 function Navbar() {
