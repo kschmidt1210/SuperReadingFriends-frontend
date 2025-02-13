@@ -1,53 +1,50 @@
 import React, { useEffect, useState } from 'react';
+import './BooksTable.css'; // Use the same styles as BooksTable
 
 function RankingsTable() {
-    const [players, setPlayers] = useState([]);
+    const [rankings, setRankings] = useState([]);
 
-    // Fetch player data from the backend API
+    // Fetch rankings from backend
     useEffect(() => {
-        fetch('https://superreadingfriends-backend.onrender.com/api/players')
+        fetch('https://superreadingfriends-backend.onrender.com/api/rankings')
             .then(response => response.json())
-            .then(data => setPlayers(data.players))
-            .catch(error => console.error('Error fetching player data:', error));
+            .then(data => setRankings(data.rankings))
+            .catch(error => console.error('Error fetching rankings:', error));
     }, []);
 
     return (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <h2>Player Rankings</h2>
-            <table style={{ width: '60%', margin: 'auto', borderCollapse: 'collapse', border: '1px solid black' }}>
-                <thead>
-                    <tr style={{ backgroundColor: '#f2f2f2' }}>
-                        <th style={styles.cell}>Player ID</th>
-                        <th style={styles.cell}>Player Name</th>
-                        <th style={styles.cell}>Player Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {players.length > 0 ? (
-                        players.map((player, index) => (
-                            <tr key={index} style={{ borderBottom: '1px solid black' }}>
-                                <td style={styles.cell}>{player.playerID}</td>
-                                <td style={styles.cell}>{player.playerName}</td>
-                                <td style={styles.cell}>{player.playerEmail}</td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="books-container"> {/* Using the same container class */}
+            <h2>Player Rankings 🏆</h2>
+            <div className="table-wrapper">
+                <table className="books-table"> {/* Using the same table class */}
+                    <thead>
                         <tr>
-                            <td colSpan="3" style={styles.cell}>Loading...</td>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Total Points</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {rankings.length > 0 ? (
+                            rankings.map((player, index) => (
+                                <tr key={index}>
+                                    <td>
+                                        <span className="rank-badge">{index + 1}</span>
+                                    </td>
+                                    <td>{player.player_name}</td>
+                                    <td>{player.total_points}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="loading">Loading...</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
-
-const styles = {
-    cell: {
-        border: '1px solid black',
-        padding: '10px',
-        textAlign: 'center'
-    }
-};
 
 export default RankingsTable;

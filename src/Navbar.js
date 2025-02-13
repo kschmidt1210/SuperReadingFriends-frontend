@@ -10,6 +10,7 @@ function Navbar() {
                 <li><Link to="/players">Players</Link></li>
                 <li><Link to="/books">All Books</Link></li>
                 <li><Link to="/my-books">My Books</Link></li>
+                <li><Link to="/rankings">Rankings</Link></li>
             </ul>
         </nav>
     );
