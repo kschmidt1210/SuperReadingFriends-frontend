@@ -51,15 +51,21 @@ function RankingsTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {rankings.map((player, index) => (
-                            <tr key={index}>
-                                <td>
-                                    <span className="rank-badge">{index + 1}</span>
-                                </td>
-                                <td>{player.player_name}</td>
-                                <td>{player.total_points}</td>
+                        {rankings.length > 0 ? (
+                            rankings.map((player, index) => (
+                                <tr key={index}>
+                                    <td>
+                                        <span className="rank-badge">{index + 1}</span>
+                                    </td>
+                                    <td>{player.player_name}</td>
+                                    <td>{player.total_points}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="loading">No rankings available.</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>
