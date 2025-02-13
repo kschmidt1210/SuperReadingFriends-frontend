@@ -15,7 +15,6 @@ function App() {
                     <Route path="/" element={<Navigate to="/players" />} />
                     <Route path="/players" element={<PlayersTable />} />
                     <Route path="/books" element={<BooksTable />} />
-                    <Route path="/my-books" element={<MyBooksTable />} /> {/* New Page */}
                 </Routes>
             </div>
         </Router>
