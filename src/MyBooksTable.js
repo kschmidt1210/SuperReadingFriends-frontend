@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import './BooksTable.css';
 
-function BooksTable() {
+function MyBooksTable() {
     const [books, setBooks] = useState([]);
 
-    // Fetch data from the backend
+    // Fetch only books for Josh
     useEffect(() => {
-        fetch('https://superreadingfriends-backend.onrender.com/api/books')
+        fetch('https://superreadingfriends-backend.onrender.com/api/my-books')
             .then(response => response.json())
             .then(data => setBooks(data.books))
             .catch(error => console.error('Error fetching book data:', error));
@@ -13,12 +14,11 @@ function BooksTable() {
 
     return (
         <div className="books-container">
-            <h2>All Logged Books</h2>
+            <h2>My Books</h2>
             <div className="table-wrapper">
                 <table className="books-table">
                     <thead>
                         <tr>
-                            <th>Player</th>
                             <th>Title</th>
                             <th>Pages</th>
                             <th>Year</th>
@@ -33,7 +33,6 @@ function BooksTable() {
                         {books.length > 0 ? (
                             books.map((book, index) => (
                                 <tr key={index}>
-                                    <td>{book.player_name}</td>
                                     <td>{book.book_title}</td>
                                     <td>{book.book_pages}</td>
                                     <td>{book.year_published}</td>
@@ -56,4 +55,4 @@ function BooksTable() {
     );
 }
 
-export default BooksTable;
+export default MyBooksTable;
