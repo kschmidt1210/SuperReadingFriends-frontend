@@ -35,7 +35,7 @@ h2 {
 }
 
 .books-table tbody tr:hover {
-    background-color: #fb937c;
+    background-color: #3D2B27;
     transition: background 0.3s ease-in-out;
 }
 
