@@ -8,7 +8,8 @@ function Navbar() {
             <h1>Super Reading Friends 📚</h1>
             <ul>
                 <li><Link to="/players">Players</Link></li>
-                <li><Link to="/books">Books</Link></li>
+                <li><Link to="/books">All Books</Link></li>
+                <li><Link to="/my-books">My Books</Link></li>
             </ul>
         </nav>
     );

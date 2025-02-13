@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PlayersTable from './PlayersTable';
 import BooksTable from './BooksTable';
+import MyBooksTable from './MyBooksTable'; // New page import
 import Navbar from './Navbar';
 import './App.css';
 
@@ -11,10 +12,10 @@ function App() {
             <div className="app-container">
                 <Navbar />
                 <Routes>
-                    {/* Default Route → Players Page */}
                     <Route path="/" element={<Navigate to="/players" />} />
                     <Route path="/players" element={<PlayersTable />} />
                     <Route path="/books" element={<BooksTable />} />
+                    <Route path="/my-books" element={<MyBooksTable />} /> {/* New Page */}
                 </Routes>
             </div>
         </Router>
