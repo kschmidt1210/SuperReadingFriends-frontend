@@ -14,10 +14,10 @@ function App() {
                 <Navbar />
                 <Routes>
                     <Route path="/" element={<Navigate to="/rankings" />} />
+                    <Route path="/rankings" element={<RankingsTable />} />
                     <Route path="/players" element={<PlayersTable />} />
                     <Route path="/books" element={<BooksTable />} />
                     <Route path="/my-books" element={<MyBooksTable />} />
-                    <Route path="/rankings" element={<RankingsTable />} />
                 </Routes>
             </div>
         </Router>
