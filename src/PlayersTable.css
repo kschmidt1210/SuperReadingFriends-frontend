@@ -2,13 +2,16 @@
     text-align: center;
     margin: 40px auto;
     width: 90%;
-    max-width: 1200px;
+    max-width: 800px;
+    background: #18120F; /* Dark background */
+    padding: 20px;
+    border-radius: 12px;
 }
 
 h2 {
     font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
+    color: #E6D2C0; /* Light brown text */
+    margin-bottom: 15px;
 }
 
 .table-wrapper {
@@ -21,22 +24,37 @@ h2 {
     width: 100%;
     border-collapse: collapse;
     font-family: 'Arial', sans-serif;
+    background: #1F1A17;
+    border-radius: 12px;
+    color: #E6D2C0; /* Light brown text */
 }
 
 .players-table thead {
-    background-color: #4CAF50;
-    color: white;
+    background: #3D2B27;
+    color: #E6D2C0;
 }
 
-.players-table th, .players-table td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
+.players-table th {
+    padding: 15px;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+/* Table Rows */
+.players-table tbody tr {
+    background: #29211D;
+    transition: background 0.3s ease-in-out;
 }
 
 .players-table tbody tr:hover {
-    background-color: #f5f5f5;
+    background: #3D2B27;
     transition: background 0.3s ease-in-out;
+}
+
+.players-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #3D2B27;
 }
 
 .players-table .loading {
