@@ -38,6 +38,14 @@ function RankingsTable() {
         return <div className="error">Error loading rankings: {error}</div>;
     }
 
+    // Function to add emoji based on rank
+    const getRankEmoji = (rank) => {
+        if (rank === 1) return " 👑"; // Gold Crown for 1st place
+        if (rank === 2) return " 🥈"; // Silver Medal for 2nd place
+        if (rank === 3) return " 🥉"; // Bronze Medal for 3rd place
+        return ""; // No emoji for other ranks
+    };
+
     return (
         <div className="table-container">
             <h2>Player Rankings 🏆</h2>
@@ -57,7 +65,10 @@ function RankingsTable() {
                                     <td>
                                         <span className="rank-badge">{index + 1}</span>
                                     </td>
-                                    <td>{player.player_name}</td>
+                                    <td>
+                                        {player.player_name}
+                                        <span className="rank-emoji">{getRankEmoji(index + 1)}</span>
+                                    </td>
                                     <td>{player.total_points.toFixed(2)}</td>
                                 </tr>
                             ))
