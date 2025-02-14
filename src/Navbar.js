@@ -1,33 +1,39 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SubmitBookModal from "./SubmitBookModal";
 import "./Navbar.css";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents"; // Trophy icon
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks"; // My Books icon
 
 function Navbar() {
     const [modalOpen, setModalOpen] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
+    const location = useLocation(); // Get current page path
 
     return (
-        <nav className="navbar">
-            <h1>Super Reading Friends 📚</h1>
-            
-            {/* Hamburger Menu for Mobile */}
-            <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-                ☰
-            </button>
+        <>
+            <nav className="navbar">
+                <h1>Super Reading Friends 📚</h1>
+            </nav>
 
-            <ul className={`nav-links ${menuOpen ? "open" : ""}`}>
-                <li><Link to="/players">Players</Link></li>
-                <li><Link to="/books">All Books</Link></li>
-                <li><Link to="/my-books">My Books</Link></li>
-                <li><Link to="/rankings">Rankings</Link></li>
-            </ul>
+            {/* Floating Bottom Navigation */}
+            <div className="floating-nav">
+                <Link to="/rankings" className={`nav-icon ${location.pathname === "/rankings" ? "active" : ""}`}>
+                    <EmojiEventsIcon fontSize="large" />
+                    <span>Rankings</span>
+                </Link>
 
-            <button className="submit-book-btn" onClick={() => setModalOpen(true)}>Submit a Book</button>
+                {/* Floating Action Button (FAB) for Submit Book */}
+                <button className="fab" onClick={() => setModalOpen(true)}>+</button>
 
-            {/* Modal */}
+                <Link to="/my-books" className={`nav-icon ${location.pathname === "/my-books" ? "active" : ""}`}>
+                    <LibraryBooksIcon fontSize="large" />
+                    <span>My Books</span>
+                </Link>
+            </div>
+
+            {/* Submit Book Modal */}
             <SubmitBookModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onBookAdded={() => window.location.reload()} />
-        </nav>
+        </>
     );
 }
 

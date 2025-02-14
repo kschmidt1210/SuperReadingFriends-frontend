@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './BooksTable.css';
+import "./TableStyles.css";
 
 function RankingsTable() {
     const [rankings, setRankings] = useState([]);
@@ -39,10 +39,10 @@ function RankingsTable() {
     }
 
     return (
-        <div className="books-container">
+        <div className="table-container">
             <h2>Player Rankings 🏆</h2>
             <div className="table-wrapper">
-                <table className="books-table">
+                <table className="table">
                     <thead>
                         <tr>
                             <th>Rank</th>
@@ -58,7 +58,7 @@ function RankingsTable() {
                                         <span className="rank-badge">{index + 1}</span>
                                     </td>
                                     <td>{player.player_name}</td>
-                                    <td>{player.total_points}</td>
+                                    <td>{player.total_points.toFixed(2)}</td>
                                 </tr>
                             ))
                         ) : (

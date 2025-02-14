@@ -37,8 +37,9 @@
     align-items: center;
 }
 
-.input-group input {
-    flex: 1;
+.input-group input,
+textarea {
+    width: 100%;
     padding: 10px;
     border-radius: 8px;
     border: none;
@@ -49,15 +50,8 @@
 
 /* Textarea */
 textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: #3a3a3a;
-    color: white;
-    font-size: 16px;
-    margin-bottom: 15px;
     resize: none;
+    margin-bottom: 15px;
 }
 
 /* Page Count */
@@ -108,17 +102,28 @@ textarea {
     font-size: 16px;
 }
 
-/* Submit Button */
+/* Button Group */
+.button-group {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Submit & Cancel Buttons */
 .primary-button {
     background: #e74c3c;
     color: white;
     font-size: 18px;
     padding: 12px;
     border-radius: 30px;
-    margin-top: 8px;
     width: 100%;
     cursor: pointer;
     border: none;
+}
+
+.primary-button:hover {
+    background: #c0392b;
 }
 
 .secondary-button {
@@ -127,16 +132,11 @@ textarea {
     font-size: 18px;
     padding: 12px;
     border-radius: 30px;
-    margin-top: 8px;
     width: 100%;
     cursor: pointer;
     border: none;
 }
 
-.button-group {
-    padding: 8;
-}
-
-.submit-button:hover {
-    background: #c0392b;
+.secondary-button:hover {
+    background: #ddd;
 }

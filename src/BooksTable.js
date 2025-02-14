@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import "./TableStyles.css";
 
 function BooksTable() {
     const [books, setBooks] = useState([]);
@@ -12,10 +13,10 @@ function BooksTable() {
     }, []);
 
     return (
-        <div className="books-container">
+        <div className="table-container">
             <h2>All Logged Books</h2>
             <div className="table-wrapper">
-                <table className="books-table">
+                <table className="table">
                     <thead>
                         <tr>
                             <th>Player</th>

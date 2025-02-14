@@ -1,72 +1,126 @@
-/* Navbar Container */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #18120F; /* Dark background */
-    padding: 20px;
-    color: #E6D2C0; /* Light brown text */
-    font-family: 'Arial', sans-serif;
-    border-bottom: 2px solid #3D2B27; /* Subtle divider */
-}
-
-/* Title */
-.navbar h1 {
-    font-size: 24px;
-    margin: 0;
-    font-weight: bold;
-}
-
-/* Navbar Menu */
-.navbar ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
+/* Prevent horizontal scrolling */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
     margin: 0;
     padding: 0;
 }
 
-/* Navbar Items */
-.navbar ul li {
+/* Base Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FF5733;
+    padding: 15px 20px;
+    color: white;
+    font-family: Arial, sans-serif;
+    position: relative;
+    max-width: 1200px; /* Limits navbar width on large screens */
+    margin: 0 auto; /* Centers navbar */
+    width: 100%;
+}
+
+/* Navbar Title */
+.navbar h1 {
+    font-size: 22px;
+    margin: 0;
+    flex-shrink: 0; /* Prevents shrinking */
+}
+
+/* Desktop Navigation Links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    flex-grow: 1;
+    justify-content: flex-end; /* Push links to the right */
+}
+
+.nav-links li {
     display: inline;
 }
 
-/* Navbar Links */
-.navbar ul li a {
-    color: #E6D2C0; /* Light brown */
+.nav-links li a {
+    color: white;
     text-decoration: none;
     font-size: 18px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: 0.3s;
 }
 
-/* Hover Effect */
-.navbar ul li a:hover {
-    background: #3D2B27; /* Slightly lighter brown */
-    color: white;
+.nav-links li a:hover {
+    text-decoration: underline;
 }
 
-/* Active Link Styling */
-.navbar ul li a.active {
-    background: #E0563A; /* Matching orange-red from rank badges */
-    color: white;
+/* Floating Navigation Bar */
+.floating-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #1A1A1A;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
 }
 
-/* Hide hamburger by default */
-.hamburger {
-    display: none;
+/* Navigation Icons (Rankings & My Books) */
+.nav-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     font-size: 24px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease-in-out;
+    color: gray;
 }
 
-/* Responsive Design for Mobile */
+.nav-icon.active {
+    color: #FF5733;
+}
+
+.nav-icon span {
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.nav-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Floating Action Button (FAB) */
+.fab {
+    position: absolute;
+    bottom: 15px;
+    width: 72px;
+    height: 72px;
+    background: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.fab:hover {
+    background: #E74C3C;
+    transform: scale(1.1);
+}
+
+/* Mobile Styles */
 @media (max-width: 768px) {
-    .hamburger {
-        display: block;
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 15px;
+        width: 100%;
     }
 
     .nav-links {
@@ -74,10 +128,13 @@
         flex-direction: column;
         position: absolute;
         top: 60px;
-        right: 0;
+        left: 0;
+        width: 100%;
         background: #333;
-        width: 200px;
-        padding: 15px;
+        padding: 15px 0;
+        text-align: center;
+        transition: transform 0.3s ease-in-out;
+        z-index: 11;
     }
 
     .nav-links.open {
@@ -88,8 +145,13 @@
         margin: 10px 0;
     }
 
-    .log-book-btn {
-        font-size: 14px;
-        padding: 8px 12px;
+    .menu-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10;
     }
 }

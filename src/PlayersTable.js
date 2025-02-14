@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import "./TableStyles.css";
 
 function PlayersTable() {
     const [players, setPlayers] = useState([]);
@@ -12,10 +13,10 @@ function PlayersTable() {
     }, []);
 
     return (
-        <div className="players-container">
+        <div className="table-container">
             <h2>Players List</h2>
             <div className="table-wrapper">
-                <table className="players-table">
+                <table className="table">
                     <thead>
                         <tr>
                             <th>Name</th>
