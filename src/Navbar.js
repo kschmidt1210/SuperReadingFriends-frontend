@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import SubmitBookModal from "./SubmitBookModal";
-import LoginModal from "./LoginModal"; // Import the login modal
+import LoginModal from "./LoginModal";
+import supabase from "./supabase"; // Import Supabase client
 import "./styles/Navbar.css";
 
 // MUI Icons
@@ -11,7 +12,32 @@ import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined"; // My B
 function Navbar() {
     const [showLogin, setShowLogin] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [user, setUser] = useState(null); // Track logged-in user
     const location = useLocation();
+
+    // Fetch user session on component mount
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user); // Set user state
+        };
+        getUser();
+
+        // Listen for authentication state changes
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+        });
+
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
+    }, []);
+
+    // Logout function
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        setUser(null); // Clear user state on logout
+    };
 
     // Open/close handlers for modals
     const openBookModal = useCallback(() => setModalOpen(true), []);
@@ -24,9 +50,16 @@ function Navbar() {
             {/* Top Navigation */}
             <nav className="navbar">
                 <h1>Super Reading Friends 📚</h1>
-                <button className="login-button" onClick={openLoginModal}>
-                    Login
-                </button>
+
+                {user ? (
+                    <button className="login-button" onClick={handleLogout}>
+                        Logout
+                    </button>
+                ) : (
+                    <button className="login-button" onClick={openLoginModal}>
+                        Login
+                    </button>
+                )}
             </nav>
 
             {/* Floating Bottom Navigation */}
