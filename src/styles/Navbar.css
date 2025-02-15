@@ -163,8 +163,8 @@ html, body {
 
 /* Login Button - Make it Stand Out */
 .login-button {
-    background: #FF5733; /* Bright gold to stand out */
-    color: rgb(255, 255, 255);
+    background: #FF5733; /* Bright red-orange for visibility */
+    color: white;
     font-size: 16px;
     font-weight: bold;
     padding: 10px 20px;
@@ -173,6 +173,14 @@ html, body {
     cursor: pointer;
     transition: background 0.3s ease-in-out, transform 0.1s ease-in-out;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px; /* Ensures button doesn’t exceed screen width */
+    min-width: auto; /* Prevents excessive width */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .login-button:hover {
@@ -181,10 +189,11 @@ html, body {
 }
 
 /* Adjust for Mobile */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .login-button {
         width: 100%; /* Full width for better tap accessibility */
         text-align: center;
         padding: 12px 0;
+        max-width: 100px;
     }
 }
