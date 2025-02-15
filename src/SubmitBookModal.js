@@ -1,128 +1,190 @@
-import React, { useState, useEffect } from "react";
-import supabase from "./supabase";  // Import Supabase client
-import "./SubmitBookModal.css";
+import React, { useState } from "react";
+import supabase from "./supabase"; // Ensure supabase client is properly imported
+import "./styles/SubmitBookModal.css";
 
-function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
+function SubmitBookModal({ onClose, currentUser }) {
     const [bookData, setBookData] = useState({
         title: "",
-        author: "",
         pages: "",
+        year_published: "",
+        completed: false,
+        fiction: true,
+        female_author: false,
         genre: "",
-        fiction_status: "",
-        reading_status: false,
-        notes: "",
-        user_id: "" // This will be updated dynamically
+        country: "",
+        date_finished: "",
+        rating: 0,
+        longest_series: false,
+        deductions: 0,
+        points: 0,
     });
 
-    const [currentUser, setCurrentUser] = useState(null);
-
-    // Fetch the logged-in user from Supabase
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error) {
-                console.error("❌ Error fetching user:", error);
-            } else {
-                console.log("✅ Logged-in user:", user); // Debugging statement
-                setCurrentUser(user);
-                setBookData((prevData) => ({
-                    ...prevData,
-                    user_id: user?.id,  // Store user_id from Supabase
-                }));
-            }
-        };
-    
-        fetchUser();
-    }, []);
-
+    // Handle input changes
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setBookData({
-            ...bookData,
-            [name]: type === "checkbox" ? checked : value,
-        });
+        const { name, value } = e.target;
+        setBookData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
+    // Handle Yes/No Toggles
+    const handleToggle = (field) => {
+        setBookData((prev) => ({
+            ...prev,
+            [field]: !prev[field],
+        }));
+    };
+
+    // Handle Star Rating
+    const handleStarClick = (rating) => {
+        setBookData((prev) => ({
+            ...prev,
+            rating,
+        }));
+    };
+
+    // **2️⃣ Handle Form Submission**
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!bookData.user_id) {
-            alert("User not found. Please log in.");
+        // Ensure user is logged in before submitting
+        if (!currentUser) {
+            alert("You must be logged in to submit a book.");
             return;
         }
 
-        try {
-            const response = await fetch("https://superreadingfriends-backend.onrender.com/api/log-book", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bookData),
-            });
+        const newBookEntry = {
+            player_id: currentUser.id, // Store user ID (foreign key)
+            title: bookData.title,
+            pages: parseInt(bookData.pages) || 0,
+            year_published: bookData.year_published,
+            completed: bookData.completed,
+            fiction: bookData.fiction,
+            female_author: bookData.female_author,
+            genre: bookData.genre,
+            country: bookData.country,
+            date_finished: bookData.date_finished,
+            rating: bookData.rating,
+            longest_series: bookData.longest_series,
+            deductions: parseFloat(bookData.deductions) || 0,
+            points: parseFloat(bookData.points) || 0, // Use static for now
+        };
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+        // **3️⃣ Insert data into Supabase**
+        const { data, error } = await supabase
+            .from("logged_books")
+            .insert([newBookEntry]);
 
+        if (error) {
+            console.error("❌ Error submitting book:", error.message);
+            alert("Failed to submit book. Please try again.");
+        } else {
+            console.log("✅ Book successfully submitted:", data);
             alert("Book submitted successfully!");
-            onBookAdded();
-            onClose();
-        } catch (error) {
-            console.error("❌ Error submitting book:", error);
-            alert("Error submitting book. Check the console for details.");
+            onClose(); // Close the modal
         }
     };
-
-    if (!isOpen) return null;
 
     return (
         <div className="modal-overlay">
             <div className="modal-content">
                 <h2>Submit New Book</h2>
                 <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <input type="text" name="title" placeholder="Book Title" value={bookData.title} onChange={handleChange} required />
-                        <input type="text" name="author" placeholder="Author" value={bookData.author} onChange={handleChange} required />
+                    <input 
+                        type="text" 
+                        name="title" 
+                        placeholder="Book Title" 
+                        value={bookData.title} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                    <input 
+                        type="number" 
+                        name="pages" 
+                        placeholder="Pages" 
+                        value={bookData.pages} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                    <input 
+                        type="number" 
+                        name="year_published" 
+                        placeholder="Year Published" 
+                        value={bookData.year_published} 
+                        onChange={handleChange} 
+                    />
+                    
+                    {/* Yes/No Toggles */}
+                    <div className="toggle-group">
+                        <label>Completed:</label>
+                        <button 
+                            type="button" 
+                            className={bookData.completed ? "active" : ""} 
+                            onClick={() => handleToggle("completed")}
+                        >Yes</button>
+                        <button 
+                            type="button" 
+                            className={!bookData.completed ? "active" : ""} 
+                            onClick={() => handleToggle("completed")}
+                        >No</button>
                     </div>
 
-                    <div className="input-group">
-                        <label>Page Count</label>
-                        <input type="number" name="pages" value={bookData.pages} onChange={handleChange} required />
+                    <div className="toggle-group">
+                        <label>Fiction:</label>
+                        <button 
+                            type="button" 
+                            className={bookData.fiction ? "active" : ""} 
+                            onClick={() => handleToggle("fiction")}
+                        >Fiction</button>
+                        <button 
+                            type="button" 
+                            className={!bookData.fiction ? "active" : ""} 
+                            onClick={() => handleToggle("fiction")}
+                        >Nonfiction</button>
                     </div>
 
-                    <div className="checkbox-group">
-                        <label>
-                            <input type="checkbox" name="reading_status" checked={bookData.reading_status} onChange={handleChange} />
-                            Completed
-                        </label>
+                    <input 
+                        type="text" 
+                        name="genre" 
+                        placeholder="Genre" 
+                        value={bookData.genre} 
+                        onChange={handleChange} 
+                    />
+
+                    <input 
+                        type="text" 
+                        name="country" 
+                        placeholder="Country" 
+                        value={bookData.country} 
+                        onChange={handleChange} 
+                    />
+
+                    <input 
+                        type="date" 
+                        name="date_finished" 
+                        value={bookData.date_finished} 
+                        onChange={handleChange} 
+                    />
+
+                    {/* Star Rating */}
+                    <div className="star-rating">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <span 
+                                key={star} 
+                                className={`star ${bookData.rating >= star ? "selected" : ""}`} 
+                                onClick={() => handleStarClick(star)}
+                            >★</span>
+                        ))}
                     </div>
 
-                    <div className="radio-buttons">
-                        <label>
-                            <input type="radio" name="fiction_status" value="fiction" checked={bookData.fiction_status === "fiction"} onChange={handleChange} />
-                            Fiction
-                        </label>
-                        <label>
-                            <input type="radio" name="fiction_status" value="nonfiction" checked={bookData.fiction_status === "nonfiction"} onChange={handleChange} />
-                            Nonfiction
-                        </label>
-                    </div>
-
-                    <div className="dropdown">
-                        <label>📚 Select Genre</label>
-                        <select name="genre" value={bookData.genre} onChange={handleChange}>
-                            <option value="">Select Genre</option>
-                            <option value="fiction">Fiction</option>
-                            <option value="non-fiction">Non-Fiction</option>
-                            <option value="fantasy">Fantasy</option>
-                            <option value="mystery">Mystery</option>
-                        </select>
-                    </div>
-
-                    <label>Notes</label>
-                    <textarea name="notes" value={bookData.notes} onChange={handleChange} />
-
-                    <div className="button-group">
-                        <button type="submit" className="primary-button">Submit Book</button>
-                        <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
+                    <div className="button-container">
+                        <button type="submit" className="primary-button">
+                            Submit Book
+                        </button>
+                        <button type="button" className="secondary-button" onClick={onClose}>
+                            Cancel
+                        </button>
                     </div>
                 </form>
             </div>
