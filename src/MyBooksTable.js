@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import supabase from "./supabase"; // Import Supabase client
-import "./TableStyles.css";
+import "./styles/TableStyles.css";
 
 function MyBooksTable() {
     const [books, setBooks] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
+    const [playerId, setPlayerId] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Fetch current user from Supabase
@@ -12,7 +13,7 @@ function MyBooksTable() {
         const getUser = async () => {
             const { data: { user }, error } = await supabase.auth.getUser();
             if (error) {
-                console.error("Error fetching user:", error);
+                console.error("❌ Error fetching user:", error);
             } else {
                 setCurrentUser(user);
             }
@@ -20,23 +21,47 @@ function MyBooksTable() {
         getUser();
     }, []);
 
-    // Fetch books once user is set
+    // Fetch player_id using the user's email
     useEffect(() => {
-        if (currentUser) {
-            const userId = currentUser?.id; // Get the Supabase user ID
-    
-            fetch(`https://superreadingfriends-backend.onrender.com/api/books?user_id=${userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    setBooks(data.books);
-                    setLoading(false);
-                })
-                .catch(error => {
-                    console.error('Error fetching book data:', error);
-                    setLoading(false);
-                });
-        }
+        const fetchPlayerId = async () => {
+            if (currentUser) {
+                const { data, error } = await supabase
+                    .from("players")
+                    .select("player_id")
+                    .eq("player_email", currentUser.email)
+                    .single();
+
+                if (error) {
+                    console.error("❌ Error fetching player_id:", error);
+                } else {
+                    setPlayerId(data?.player_id);
+                }
+            }
+        };
+        fetchPlayerId();
     }, [currentUser]);
+
+    useEffect(() => {
+        const fetchBooks = async () => {
+            if (playerId) {
+                try {
+                    const response = await fetch(`https://superreadingfriends-backend.onrender.com/api/my-books?player_id=${playerId}`);
+                    const data = await response.json();
+    
+                    if (data.books) {
+                        setBooks(data.books);
+                    } else {
+                        console.error("❌ No books found for this user.");
+                    }
+                } catch (error) {
+                    console.error("❌ Error fetching book data:", error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        fetchBooks();
+    }, [playerId]);
 
     return (
         <div className="table-container">
@@ -66,7 +91,7 @@ function MyBooksTable() {
                                     <td>{book.book_title}</td>
                                     <td>{book.book_pages}</td>
                                     <td>{book.year_published}</td>
-                                    <td>{book.book_completed ? '✅' : '❌'}</td>
+                                    <td>{book.book_completed ? "✅" : "❌"}</td>
                                     <td>{book.book_genre}</td>
                                     <td>{book.country_published}</td>
                                     <td>{book.book_rating}/10</td>

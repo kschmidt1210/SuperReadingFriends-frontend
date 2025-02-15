@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import "./TableStyles.css";
+import "./styles/TableStyles.css";
 
 function PlayersTable() {
     const [players, setPlayers] = useState([]);
