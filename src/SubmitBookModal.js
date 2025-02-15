@@ -1,30 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import supabase from "./supabase";  // Import Supabase client
 import "./SubmitBookModal.css";
 
 function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
     const [bookData, setBookData] = useState({
-        player_name: "Josh", // Hardcoded for now
         title: "",
         author: "",
-        description: "",
         pages: "",
         genre: "",
-        fiction_status: "", // New name for fiction/nonfiction radio buttons
-        reading_status: false, // Boolean for "Completed" checkbox
-        notes: ""
+        fiction_status: "",
+        reading_status: false,
+        notes: "",
+        user_id: "" // This will be updated dynamically
     });
+
+    const [currentUser, setCurrentUser] = useState(null);
+
+    // Fetch the logged-in user from Supabase
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                console.error("❌ Error fetching user:", error);
+            } else {
+                console.log("✅ Logged-in user:", user); // Debugging statement
+                setCurrentUser(user);
+                setBookData((prevData) => ({
+                    ...prevData,
+                    user_id: user?.id,  // Store user_id from Supabase
+                }));
+            }
+        };
+    
+        fetchUser();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-
         setBookData({
             ...bookData,
-            [name]: type === "checkbox" ? checked : value, // Handle checkboxes properly
+            [name]: type === "checkbox" ? checked : value,
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!bookData.user_id) {
+            alert("User not found. Please log in.");
+            return;
+        }
 
         try {
             const response = await fetch("https://superreadingfriends-backend.onrender.com/api/log-book", {
@@ -53,19 +78,16 @@ function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
             <div className="modal-content">
                 <h2>Submit New Book</h2>
                 <form onSubmit={handleSubmit}>
-                    {/* Title & Author Inputs */}
                     <div className="input-group">
                         <input type="text" name="title" placeholder="Book Title" value={bookData.title} onChange={handleChange} required />
                         <input type="text" name="author" placeholder="Author" value={bookData.author} onChange={handleChange} required />
                     </div>
 
-                    {/* Page Count */}
                     <div className="input-group">
                         <label>Page Count</label>
                         <input type="number" name="pages" value={bookData.pages} onChange={handleChange} required />
                     </div>
 
-                    {/* Reading Status (Checkbox) */}
                     <div className="checkbox-group">
                         <label>
                             <input type="checkbox" name="reading_status" checked={bookData.reading_status} onChange={handleChange} />
@@ -73,7 +95,6 @@ function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
                         </label>
                     </div>
 
-                    {/* Fiction / Non-Fiction Selection */}
                     <div className="radio-buttons">
                         <label>
                             <input type="radio" name="fiction_status" value="fiction" checked={bookData.fiction_status === "fiction"} onChange={handleChange} />
@@ -85,7 +106,6 @@ function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
                         </label>
                     </div>
 
-                    {/* Genre Selection */}
                     <div className="dropdown">
                         <label>📚 Select Genre</label>
                         <select name="genre" value={bookData.genre} onChange={handleChange}>
@@ -97,16 +117,13 @@ function SubmitBookModal({ isOpen, onClose, onBookAdded }) {
                         </select>
                     </div>
 
-                    {/* Notes */}
                     <label>Notes</label>
                     <textarea name="notes" value={bookData.notes} onChange={handleChange} />
 
-                    {/* Buttons */}
                     <div className="button-group">
                         <button type="submit" className="primary-button">Submit Book</button>
                         <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
                     </div>
-
                 </form>
             </div>
         </div>

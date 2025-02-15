@@ -91,6 +91,11 @@ html, body {
     transform: scale(1.1);
 }
 
+.nav-icon svg {
+    stroke-width: 0; /* Adjust thickness (increase for thicker, decrease for thinner) */
+    stroke: currentColor; /* Inherits color from text */
+}
+
 /* Floating Action Button (FAB) */
 .fab {
     position: absolute;

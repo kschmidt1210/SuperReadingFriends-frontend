@@ -1,16 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import supabase from "./supabase"; // Import Supabase client
 import "./TableStyles.css";
 
 function MyBooksTable() {
     const [books, setBooks] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Fetch only books for Josh
+    // Fetch current user from Supabase
     useEffect(() => {
-        fetch('https://superreadingfriends-backend.onrender.com/api/my-books')
-            .then(response => response.json())
-            .then(data => setBooks(data.books))
-            .catch(error => console.error('Error fetching book data:', error));
+        const getUser = async () => {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                console.error("Error fetching user:", error);
+            } else {
+                setCurrentUser(user);
+            }
+        };
+        getUser();
     }, []);
+
+    // Fetch books once user is set
+    useEffect(() => {
+        if (currentUser) {
+            const userId = currentUser?.id; // Get the Supabase user ID
+    
+            fetch(`https://superreadingfriends-backend.onrender.com/api/books?user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    setBooks(data.books);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error fetching book data:', error);
+                    setLoading(false);
+                });
+        }
+    }, [currentUser]);
 
     return (
         <div className="table-container">
@@ -30,7 +56,11 @@ function MyBooksTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {books.length > 0 ? (
+                        {loading ? (
+                            <tr>
+                                <td colSpan="8" className="loading">Loading...</td>
+                            </tr>
+                        ) : books.length > 0 ? (
                             books.map((book, index) => (
                                 <tr key={index}>
                                     <td>{book.book_title}</td>
@@ -45,7 +75,7 @@ function MyBooksTable() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="9" className="loading">Loading...</td>
+                                <td colSpan="8" className="loading">No books found for this user.</td>
                             </tr>
                         )}
                     </tbody>

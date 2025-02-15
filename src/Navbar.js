@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import SubmitBookModal from "./SubmitBookModal";
 import "./Navbar.css";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents"; // Trophy icon
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks"; // My Books icon
+import Login from "./Login";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined"; // Thin Trophy icon
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined"; // Thin My Books icon
 
 function Navbar() {
     const [modalOpen, setModalOpen] = useState(false);
@@ -13,12 +14,13 @@ function Navbar() {
         <>
             <nav className="navbar">
                 <h1>Super Reading Friends 📚</h1>
+                <Login />
             </nav>
 
             {/* Floating Bottom Navigation */}
             <div className="floating-nav">
                 <Link to="/rankings" className={`nav-icon ${location.pathname === "/rankings" ? "active" : ""}`}>
-                    <EmojiEventsIcon fontSize="large" />
+                    <EmojiEventsOutlinedIcon fontSize="large" />
                     <span>Rankings</span>
                 </Link>
 
@@ -26,7 +28,7 @@ function Navbar() {
                 <button className="fab" onClick={() => setModalOpen(true)}>+</button>
 
                 <Link to="/my-books" className={`nav-icon ${location.pathname === "/my-books" ? "active" : ""}`}>
-                    <LibraryBooksIcon fontSize="large" />
+                    <MenuBookOutlinedIcon fontSize="large" />
                     <span>My Books</span>
                 </Link>
             </div>
