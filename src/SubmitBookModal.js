@@ -1,17 +1,20 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import for navigation
 import supabase from "./supabase"; // Ensure supabase client is properly imported
 import "./styles/SubmitBookModal.css";
 
-function SubmitBookModal({ onClose, currentUser }) {
+function SubmitBookModal({ onClose, currentUser, onBookSubmitted }) {
+    const navigate = useNavigate(); // ✅ Initialize navigation hook
+
     const [bookData, setBookData] = useState({
         title: "",
         pages: "",
         year_published: "",
         completed: false,
-        fiction: true,
+        fiction_nonfiction: true,
         female_author: false,
         genre: "",
-        country: "",
+        country_published: "",
         date_finished: "",
         rating: 0,
         longest_series: false,
@@ -47,35 +50,53 @@ function SubmitBookModal({ onClose, currentUser }) {
     // **2️⃣ Handle Form Submission**
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         // Ensure user is logged in before submitting
         if (!currentUser) {
             alert("You must be logged in to submit a book.");
             return;
         }
-
+    
+        // **Fetch the player's name based on currentUser's uuid**
+        const { data: playerData, error: playerError } = await supabase
+            .from("players")
+            .select("player_name")
+            .eq("player_id", currentUser.id)
+            .single(); // Expecting a single result
+    
+        if (playerError || !playerData) {
+            console.error("❌ Error fetching player name:", playerError?.message);
+            alert("Failed to retrieve player information.");
+            return;
+        }
+    
+        const playerName = playerData.player_name; // Store the player's name
+    
         const newBookEntry = {
             player_id: currentUser.id, // Store user ID (foreign key)
+            player_name: playerName,  // ✅ Now including the player's name
             title: bookData.title,
             pages: parseInt(bookData.pages) || 0,
-            year_published: bookData.year_published,
+            year_published: parseInt(bookData.year_published) || 0,
             completed: bookData.completed,
-            fiction: bookData.fiction,
+            fiction_nonfiction: bookData.fiction_nonfiction,
             female_author: bookData.female_author,
             genre: bookData.genre,
-            country: bookData.country,
+            country_published: bookData.country_published,
             date_finished: bookData.date_finished,
-            rating: bookData.rating,
+            rating: parseFloat(bookData.rating) || 0,
             longest_series: bookData.longest_series,
             deductions: parseFloat(bookData.deductions) || 0,
             points: parseFloat(bookData.points) || 0, // Use static for now
         };
-
-        // **3️⃣ Insert data into Supabase**
+    
+        console.log("Submitting book:", newBookEntry);
+        
+        // **Insert data into Supabase**
         const { data, error } = await supabase
             .from("logged_books")
             .insert([newBookEntry]);
-
+    
         if (error) {
             console.error("❌ Error submitting book:", error.message);
             alert("Failed to submit book. Please try again.");
@@ -83,7 +104,17 @@ function SubmitBookModal({ onClose, currentUser }) {
             console.log("✅ Book successfully submitted:", data);
             alert("Book submitted successfully!");
             onClose(); // Close the modal
+
+            // ✅ Trigger a refresh in My Books (if function is provided)
+            if (onBookSubmitted) {
+                onBookSubmitted();
+            }
+
+            // ✅ Navigate to My Books if not already there
+            navigate("/my-books");
         }
+
+            
     };
 
     return (
@@ -134,13 +165,13 @@ function SubmitBookModal({ onClose, currentUser }) {
                         <label>Fiction:</label>
                         <button 
                             type="button" 
-                            className={bookData.fiction ? "active" : ""} 
-                            onClick={() => handleToggle("fiction")}
+                            className={bookData.fiction_nonfiction ? "active" : ""} 
+                            onClick={() => handleToggle("fiction_nonfiction")}
                         >Fiction</button>
                         <button 
                             type="button" 
-                            className={!bookData.fiction ? "active" : ""} 
-                            onClick={() => handleToggle("fiction")}
+                            className={!bookData.fiction_nonfiction ? "active" : ""} 
+                            onClick={() => handleToggle("fiction_nonfiction")}
                         >Nonfiction</button>
                     </div>
 
@@ -154,9 +185,9 @@ function SubmitBookModal({ onClose, currentUser }) {
 
                     <input 
                         type="text" 
-                        name="country" 
+                        name="country_published" 
                         placeholder="Country" 
-                        value={bookData.country} 
+                        value={bookData.country_published} 
                         onChange={handleChange} 
                     />
 

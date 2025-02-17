@@ -35,14 +35,14 @@ function BooksTable() {
                             books.map((book, index) => (
                                 <tr key={index}>
                                     <td>{book.player_name}</td>
-                                    <td>{book.book_title}</td>
-                                    <td>{book.book_pages}</td>
+                                    <td>{book.title}</td>
+                                    <td>{book.pages}</td>
                                     <td>{book.year_published}</td>
-                                    <td>{book.book_completed ? '✅' : '❌'}</td>
-                                    <td>{book.book_genre}</td>
+                                    <td>{book.completed ? '✅' : '❌'}</td>
+                                    <td>{book.genre}</td>
                                     <td>{book.country_published}</td>
-                                    <td>{book.book_rating}/10</td>
-                                    <td>{book.book_points}</td>
+                                    <td>{book.rating}/10</td>
+                                    <td>{book.points}</td>
                                 </tr>
                             ))
                         ) : (

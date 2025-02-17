@@ -86,7 +86,7 @@ function Navbar() {
 
             {/* Modals */}
             {showLogin && <LoginModal onClose={closeLoginModal} />}
-            {modalOpen && <SubmitBookModal isOpen={modalOpen} onClose={closeBookModal} onBookAdded={closeBookModal} />}
+            {modalOpen && <SubmitBookModal isOpen={modalOpen} onClose={closeBookModal} onBookAdded={closeBookModal} currentUser={user} />}
         </>
     );
 }
