@@ -49,7 +49,7 @@ function RankingsTable() {
     if (error) return <div className="error">Error loading rankings: {error}</div>;
 
     const getRankEmoji = (rank) => {
-        if (rank === 1) return " 👑"; // Gold Crown for 1st place
+        if (rank === 1) return <a href="https://i.imgur.com/MGCh06x.jpeg">" 👑"</a>; // Gold Crown for 1st place
         if (rank === 2) return " 🥈"; // Silver Medal for 2nd place
         if (rank === 3) return " 🥉"; // Bronze Medal for 3rd place
         return "";

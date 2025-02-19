@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // ✅ Import for navigation
 import supabase from "./supabase"; // Ensure supabase client is properly imported
 import Snackbar from "@mui/material/Snackbar";
@@ -9,6 +9,7 @@ import "./styles/SubmitBookModal.css";
 function SubmitBookModal({ onClose, currentUser }) {
     const navigate = useNavigate(); // ✅ Initialize navigation hook
     const location = useLocation();
+    const [pointValues, setPointValues] = useState({});
 
     // ✅ Get current date in YYYY-MM-DD format
     const getCurrentDate = () => {
@@ -28,33 +29,93 @@ function SubmitBookModal({ onClose, currentUser }) {
         date_finished: getCurrentDate(),
         rating: 0,
         longest_series: false,
-        deductions: 0,
-        points: 0,
+        deductions: "",
+        hometown_bonus: "",  // 🆕 New field
+        bonus_1: "",  // 🆕 New field
+        bonus_2: "",  // 🆕 New field
+        bonus_3: "",  // 🆕 New field
     });
 
-    // Handle input changes
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setBookData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+    const [calculatedPoints, setCalculatedPoints] = useState(0);
+
+    useEffect(() => {
+        async function fetchPointValues() {
+            const { data, error } = await supabase.from("point_values").select("attribute, value");
+            if (!error) {
+                const valuesMap = data.reduce((acc, { attribute, value }) => {
+                    acc[attribute] = value;
+                    return acc;
+                }, {});
+                setPointValues(valuesMap);
+            } else {
+                console.error("Error fetching point values:", error);
+            }
+        }
+        fetchPointValues();
+    }, []);
+
+    const updateCalculatedPoints = (updatedData) => {
+        const points = calculatePoints(updatedData, pointValues);
+        setCalculatedPoints(points); // ✅ Update the state with new points
+    };
+
+    function calculatePoints(bookData, pointValues) {
+        let { pages, completed, fiction_nonfiction, hometown_bonus, bonus_1, bonus_2, bonus_3, deductions } = bookData;
+    
+        // Get point multipliers from the provided `pointValues` lookup
+        let pageRate1 = pointValues["Page Rate (1-100) per 50"] || 0;
+        let pageRate2 = pointValues["Page Rate (100+) per 50"] || 0;
+    
+        // **Step 1: Base Points Calculation** (Round pages up to the nearest 50)
+        let roundedPages = Math.ceil(pages / 50) * 50;
+        let basePoints = 
+            (Math.min(100, roundedPages) * pageRate1 / 50) + 
+            (Math.max(0, roundedPages - 100) * pageRate2 / 50);
+    
+        // **Step 2: Fiction/Nonfiction Bonus (Only applies if completed)**
+        // Ensure first letter is uppercase to match point_values table
+        let fictionNonfictionKey = String(fiction_nonfiction).charAt(0).toUpperCase() + String(fiction_nonfiction).slice(1);
+        let extraPoints = completed ? (pointValues[fictionNonfictionKey] || 0) : 0;
+    
+        // **Step 3: Multipliers Calculation**
+        let multipliers = 
+            (pointValues[hometown_bonus] || 0) +
+            (pointValues[bonus_1] || 0) +
+            (pointValues[bonus_2] || 0) +
+            (pointValues[bonus_3] || 0);
+    
+        // **Step 4: Deduction Multiplier**
+        let deductionMultiplier = pointValues[deductions] || 1;
+    
+        // **Final Calculation**
+        let finalPoints = (basePoints + extraPoints) * (1 + multipliers) * deductionMultiplier;
+    
+        return finalPoints.toFixed(2); // Round to 2 decimal places
+    }
+
+    const handleChange = (event) => {
+        const { name, value, type, checked } = event.target;
+        let newValue = type === "checkbox" ? checked : value;
+    
+        setBookData((prevData) => {
+            const updatedData = { ...prevData, [name]: newValue };
+            updateCalculatedPoints(updatedData); // 🔥 Update points dynamically
+            return updatedData;
+        });
     };
 
     // Handle Yes/No Toggles
     const handleToggle = (field) => {
-        setBookData((prev) => ({
-            ...prev,
-            [field]: !prev[field],
-        }));
+        const updatedBookData = { ...bookData, [field]: !bookData[field] };
+        setBookData(updatedBookData);
+        updateCalculatedPoints(updatedBookData);
     };
 
     // Handle Star Rating
     const handleStarClick = (rating) => {
-        setBookData((prev) => ({
-            ...prev,
-            rating,
-        }));
+        const updatedBookData = { ...bookData, rating };
+        setBookData(updatedBookData);
+        updateCalculatedPoints(updatedBookData);
     };
 
     // **2️⃣ Handle Form Submission**
@@ -67,12 +128,12 @@ function SubmitBookModal({ onClose, currentUser }) {
             return;
         }
     
-        // **Fetch the player's name based on currentUser's uuid**
+        // Fetch the player's name based on currentUser's uuid
         const { data: playerData, error: playerError } = await supabase
             .from("players")
             .select("player_name")
             .eq("player_id", currentUser.id)
-            .single(); // Expecting a single result
+            .single();
     
         if (playerError || !playerData) {
             console.error("❌ Error fetching player name:", playerError?.message);
@@ -82,47 +143,56 @@ function SubmitBookModal({ onClose, currentUser }) {
     
         const playerName = playerData.player_name; // Store the player's name
     
+        // Construct book entry, ensuring correct data types
         const newBookEntry = {
-            player_id: currentUser.id, // Store user ID (foreign key)
-            player_name: playerName,  // ✅ Now including the player's name
-            title: bookData.title,
+            player_id: currentUser.id, 
+            player_name: playerName,
+            title: bookData.title.trim(),
             pages: parseInt(bookData.pages) || 0,
-            year_published: parseInt(bookData.year_published) || 0,
+            year_published: bookData.year_published ? parseInt(bookData.year_published) : null,
             completed: bookData.completed,
             fiction_nonfiction: bookData.fiction_nonfiction,
             female_author: bookData.female_author,
-            genre: bookData.genre,
-            country_published: bookData.country_published,
+            genre: bookData.genre.trim() || null,
+            country_published: bookData.country_published.trim() || null,
             date_finished: bookData.date_finished,
             rating: parseFloat(bookData.rating) || 0,
             longest_series: bookData.longest_series,
-            deductions: parseFloat(bookData.deductions) || 0,
-            points: parseFloat(bookData.points) || 0, // Use static for now
+            deductions: bookData.deductions.trim() || null,
+            hometown_bonus: bookData.hometown_bonus.trim() || null,
+            bonus_1: bookData.bonus_1.trim() || null,
+            bonus_2: bookData.bonus_2.trim() || null,
+            bonus_3: bookData.bonus_3.trim() || null,
+            points: parseFloat(calculatedPoints) || 0
         };
     
-        console.log("Submitting book:", newBookEntry);
-        
-        // **Insert data into Supabase**
+        console.log("✅ Calculated Points Before Submission:", calculatedPoints);
+        console.log("📤 Submitting book:", newBookEntry); // 🔍 Log the submitted data
+    
+        // Insert data into Supabase
         const { data, error } = await supabase
             .from("logged_books")
             .insert([newBookEntry]);
+
+        console.log("🚀 Final Book Entry Sent to Supabase:", JSON.stringify(newBookEntry, null, 2));
     
         if (error) {
-            console.error("❌ Error submitting book:", error.message);
-            alert("Failed to submit book. Please try again.");
-        } else {
-            console.log("✅ Book successfully submitted:", data);
-            alert("Book submitted successfully!");
-            onClose(); // Close the modal
-
-             // ✅ Refresh My Books page if the user is already on /my-books
-             if (location.pathname === "/my-books") {
-                window.location.reload(); // ✅ Force a page reload
-            } else {
-                navigate("/my-books"); // ✅ Navigate to My Books if not there
-            }
+            console.error("❌ Error submitting book:", error);
+            alert(`Failed to submit book: ${error.message}`);
+            return; // Stop execution if there's an error
         }
-            
+    
+        console.log("✅ Book successfully submitted:", data); // 🔍 Log the response from Supabase
+    
+        alert("Book submitted successfully!");
+        onClose(); // Close the modal
+    
+        // Refresh My Books page if the user is already on /my-books
+        if (location.pathname === "/my-books") {
+            window.location.reload(); // Force a page reload
+        } else {
+            navigate("/my-books"); // Navigate to My Books if not there
+        }
     };
 
     return (
@@ -217,7 +287,55 @@ function SubmitBookModal({ onClose, currentUser }) {
                         ))}
                     </div>
 
+                    {/* Hometown Bonus */}
+                    <input 
+                        type="text" 
+                        name="hometown_bonus" 
+                        placeholder="Hometown Bonus" 
+                        value={bookData.hometown_bonus} 
+                        onChange={handleChange} 
+                    />
+
+                    {/* Bonus 1 */}
+                    <input 
+                        type="text" 
+                        name="bonus_1" 
+                        placeholder="Bonus 1" 
+                        value={bookData.bonus_1} 
+                        onChange={handleChange} 
+                    />
+
+                    {/* Bonus 2 */}
+                    <input 
+                        type="text" 
+                        name="bonus_2" 
+                        placeholder="Bonus 2" 
+                        value={bookData.bonus_2} 
+                        onChange={handleChange} 
+                    />
+
+                    {/* Bonus 3 */}
+                    <input 
+                        type="text" 
+                        name="bonus_3" 
+                        placeholder="Bonus 3" 
+                        value={bookData.bonus_3} 
+                        onChange={handleChange} 
+                    />
+
+                    {/* Deductions (Number Input) */}
+                    <input 
+                        type="text" 
+                        name="deductions" 
+                        placeholder="Deductions" 
+                        value={bookData.deductions} 
+                        onChange={handleChange} 
+                    />
+
                     <div className="button-container">
+                        <div className="points-display">
+                            <strong>Points:</strong> {calculatedPoints !== undefined ? calculatedPoints : "0.00"}
+                        </div>
                         <button type="submit" className="primary-button">
                             Submit Book
                         </button>

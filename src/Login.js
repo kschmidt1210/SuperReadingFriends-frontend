@@ -15,7 +15,6 @@ function Login() {
                 console.error("❌ Error fetching session:", error);
             } else if (sessionData.session) {
                 console.log("✅ Active session:", sessionData.session.user);
-                setUser(sessionData.session.user);
             }
         };
 
@@ -29,6 +28,7 @@ function Login() {
             } else {
                 console.warn("⚠️ User logged out or session missing.");
                 setUser(null);
+                window.location.reload(); // ✅ Force a page reload
             }
         });
 
@@ -85,7 +85,11 @@ function Login() {
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setUser(null);
-        window.location.reload(); // ✅ Force a page reload
+        sessionStorage.clear();
+        localStorage.clear();
+    
+        // Force full page reload
+        window.location.href = "/";
     };
 
     return (

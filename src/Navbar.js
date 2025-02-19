@@ -13,21 +13,48 @@ function Navbar() {
     const [showLogin, setShowLogin] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [user, setUser] = useState(null); // Track logged-in user
+    const [playerName, setPlayerName] = useState(null); // Track player name
     const location = useLocation();
 
     // Fetch user session on component mount
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            setUser(user); // Set user state
+    
+            if (user) {
+                setUser(user);
+    
+                // Fetch player name from the players table
+                const { data: playerData, error } = await supabase
+                    .from("players")
+                    .select("player_name")
+                    .eq("player_id", user.id) // Match Supabase UID to player_id
+                    .single(); // Expect only one match
+    
+                if (error) {
+                    console.error("❌ Error fetching player name:", error);
+                } else {
+                    setPlayerName(playerData?.player_name || "Player");
+                }
+            } else {
+                setUser(null);
+                setPlayerName(null);
+            }
         };
+    
         getUser();
-
+    
         // Listen for authentication state changes
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user || null);
+            if (session?.user) {
+                setUser(session.user);
+                getUser(); // Refresh player name on login
+            } else {
+                setUser(null);
+                setPlayerName(null);
+            }
         });
-
+    
         return () => {
             authListener.subscription.unsubscribe();
         };
@@ -52,9 +79,12 @@ function Navbar() {
                 <h1>Super Reading Friends 📚</h1>
 
                 {user ? (
+                    <div className="user-info">
+                    <span className="player-greeting">Hello, {playerName}!</span>
                     <button className="login-button" onClick={handleLogout}>
                         Logout
                     </button>
+                </div>
                 ) : (
                     <button className="login-button" onClick={openLoginModal}>
                         Login
