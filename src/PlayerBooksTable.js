@@ -9,7 +9,7 @@ function PlayerBooksTable() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch(`https://superreadingfriends-backend.onrender.com/api/player-books?player_name=${encodeURIComponent(playerName)}`)
+        fetch(`https://superreadingfriends-backend.onrender.com/api/player-books?player_name=${encodeURIComponent(playerName)}&order=created_at.desc`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);

@@ -45,7 +45,7 @@ function MyBooksTable() {
     const fetchBooks = async () => {
         if (playerId) {
             try {
-                const response = await fetch(`https://superreadingfriends-backend.onrender.com/api/my-books?player_id=${playerId}`);
+                const response = await fetch(`https://superreadingfriends-backend.onrender.com/api/my-books?player_id=${playerId}&order=created_at.desc`);
                 const data = await response.json();
 
                 if (data.books) {
