@@ -5,6 +5,7 @@ import BooksTable from './BooksTable';
 import MyBooksTable from './MyBooksTable';
 import RankingsTable from './RankingsTable';
 import Navbar from './Navbar';
+import PlayerBooksTable from "./PlayerBooksTable";
 import './App.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
                     <Route path="/players" element={<PlayersTable />} />
                     <Route path="/books" element={<BooksTable />} />
                     <Route path="/my-books" element={<MyBooksTable />} />
+                    <Route path="/player-books/:playerName" element={<PlayerBooksTable />} />
                 </Routes>
             </div>
         </Router>

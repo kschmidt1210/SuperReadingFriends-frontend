@@ -1,6 +1,6 @@
 .table-container {
     text-align: center;
-    margin: 40px auto;
+    margin: 0px auto 40px;
     width: 90%;
     max-width: 1200px;
     padding-bottom: 70px;
@@ -49,3 +49,31 @@ h2 {
     padding: 15px;
 }
 
+/* Make rows in RankingsTable appear clickable */
+.clickable-row {
+    cursor: pointer; /* Changes cursor to pointer */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.clickable-row:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Light hover effect */
+}
+
+/* Add styling for sortable table headers */
+.sortable {
+    cursor: pointer;
+    user-select: none; /* Prevent text selection when clicking */
+    position: relative;
+    padding-right: 20px; /* Space for sort icon */
+}
+
+.sortable::after {
+    position: absolute;
+    right: 5px;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.sortable:hover::after {
+    opacity: 1;
+}

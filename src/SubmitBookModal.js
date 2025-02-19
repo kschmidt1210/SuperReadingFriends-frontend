@@ -1,21 +1,31 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Import for navigation
+import { useNavigate, useLocation } from "react-router-dom"; // ✅ Import for navigation
 import supabase from "./supabase"; // Ensure supabase client is properly imported
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import "./styles/SubmitBookModal.css";
 
-function SubmitBookModal({ onClose, currentUser, onBookSubmitted }) {
+
+function SubmitBookModal({ onClose, currentUser }) {
     const navigate = useNavigate(); // ✅ Initialize navigation hook
+    const location = useLocation();
+
+    // ✅ Get current date in YYYY-MM-DD format
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+    };
 
     const [bookData, setBookData] = useState({
         title: "",
         pages: "",
         year_published: "",
-        completed: false,
-        fiction_nonfiction: true,
+        completed: true,
+        fiction_nonfiction: "fiction",
         female_author: false,
         genre: "",
         country_published: "",
-        date_finished: "",
+        date_finished: getCurrentDate(),
         rating: 0,
         longest_series: false,
         deductions: 0,
@@ -105,15 +115,13 @@ function SubmitBookModal({ onClose, currentUser, onBookSubmitted }) {
             alert("Book submitted successfully!");
             onClose(); // Close the modal
 
-            // ✅ Trigger a refresh in My Books (if function is provided)
-            if (onBookSubmitted) {
-                onBookSubmitted();
+             // ✅ Refresh My Books page if the user is already on /my-books
+             if (location.pathname === "/my-books") {
+                window.location.reload(); // ✅ Force a page reload
+            } else {
+                navigate("/my-books"); // ✅ Navigate to My Books if not there
             }
-
-            // ✅ Navigate to My Books if not already there
-            navigate("/my-books");
         }
-
             
     };
 

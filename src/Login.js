@@ -79,11 +79,13 @@ function Login() {
         } else {
             console.log("✅ Sign-in success:", data);
         }
+        window.location.reload(); // ✅ Force a page reload
     };
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setUser(null);
+        window.location.reload(); // ✅ Force a page reload
     };
 
     return (

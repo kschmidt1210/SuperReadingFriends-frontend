@@ -21,6 +21,7 @@ function LoginModal({ onClose }) {
             console.log("✅ Logged in:", data);
             onClose(); // Close modal on success
         }
+        window.location.reload(); // ✅ Force a page reload
     };
 
     // Handle signup
