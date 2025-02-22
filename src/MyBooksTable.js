@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import supabase from "./supabase"; // Import Supabase client
 import "./styles/TableStyles.css";
 import SubmitBookModal from "./SubmitBookModal";
+import EditBookModal from "./EditBookModal.js";
 
 function MyBooksTable() {
     const [books, setBooks] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [playerId, setPlayerId] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedBook, setSelectedBook] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     // Fetch current user from Supabase
     useEffect(() => {
@@ -65,6 +68,11 @@ function MyBooksTable() {
         fetchBooks();
     }, [playerId]);
 
+    const handleEditBook = (book) => {
+        setSelectedBook(book); // Store book data
+        setShowEditModal(true); // Open modal
+    };
+
     return (
         <div className="table-container">
             <h2>My Books</h2>
@@ -72,6 +80,7 @@ function MyBooksTable() {
                 <table className="table">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Title</th>
                             <th>Pages</th>
                             <th>Year</th>
@@ -90,6 +99,9 @@ function MyBooksTable() {
                         ) : books.length > 0 ? (
                             books.map((book, index) => (
                                 <tr key={index}>
+                                    <td><button className="edit-button" onClick={() => handleEditBook(book)}>
+                                        ✏️ Edit
+                                    </button></td>
                                     <td>{book.title}</td>
                                     <td>{book.pages}</td>
                                     <td>{book.year_published}</td>
@@ -108,6 +120,17 @@ function MyBooksTable() {
                     </tbody>
                 </table>
             </div>
+            {/* 🆕 Add EditBookModal here before the closing div */}
+            {showEditModal && (
+                <EditBookModal
+                    book={selectedBook}
+                    onClose={(refresh) => {
+                        setShowEditModal(false);
+                        if (refresh) fetchBooks(); // Refresh the books list after edit
+                    }}
+                    currentUser={currentUser}
+                />
+            )}
         </div>
     );
 }

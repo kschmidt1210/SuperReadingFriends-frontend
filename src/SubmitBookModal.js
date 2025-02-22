@@ -166,15 +166,10 @@ function SubmitBookModal({ onClose, currentUser }) {
             points: parseFloat(calculatedPoints) || 0
         };
     
-        console.log("✅ Calculated Points Before Submission:", calculatedPoints);
-        console.log("📤 Submitting book:", newBookEntry); // 🔍 Log the submitted data
-    
         // Insert data into Supabase
         const { data, error } = await supabase
             .from("logged_books")
             .insert([newBookEntry]);
-
-        console.log("🚀 Final Book Entry Sent to Supabase:", JSON.stringify(newBookEntry, null, 2));
     
         if (error) {
             console.error("❌ Error submitting book:", error);
@@ -184,7 +179,6 @@ function SubmitBookModal({ onClose, currentUser }) {
     
         console.log("✅ Book successfully submitted:", data); // 🔍 Log the response from Supabase
     
-        alert("Book submitted successfully!");
         onClose(); // Close the modal
     
         // Refresh My Books page if the user is already on /my-books
